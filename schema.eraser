@@ -1,0 +1,145 @@
+entity-relationship-diagram
+
+users [icon: user, color: blue] {
+  id serial pk
+  full_name varchar(50) not null
+  email varchar(50) not null
+  phone varchar(15) 
+  password_hash varchar(256) not null
+  role enum [trainer, client] default[client] not null
+  profile_url varchar(256)
+  created_at timestamp
+}
+ 
+trainer [icon: dumbbell, color: green] {
+  id serial pk
+  user_id int fk 
+  bio text
+  specializations varchar(20)
+  instagram_handle varchar(256)
+  hourly_rate decimal(10,2) not null
+  is_active boolean default[true]
+}
+
+client [icon: client, color: yellow] {
+  id serial pk
+  user_id int fk
+  dob date not null
+  gender enum[male,female,other] not null
+  height decimal(10,2) not null
+  weight decimal(10,2) not null
+  health_conditions text not null
+  fitness_goals text  
+  createdAt timestamp
+}
+
+payments [icon: payment, color: orange] {
+  id serial pk
+  client_id int fk
+  enrollment_id int fk
+  amount decimal(10,2) not null
+  currency enum[INR, Doller] not null
+  payment_method enum['upi','card','net_banking','wallet','cash','bank_transfer'] not null
+  transaction_id varchar(100) not null
+  status enum['pending', 'success', 'failed']
+  paid_at timestamp
+}
+
+progress_logs [icon: log, color: purple] {
+  id serial pk
+  client_id int fk 
+  log_date date 
+  weight_kg decimal(10,2)
+  body_fat_pct decimal(10,2)
+  chest_cm decimal(10,2)
+  waist_cm decimal(10,2)
+  arms_cm decimal(10,2)
+  thighs_cm decimal(10,2)
+  startedAt timestamp
+}
+
+progress_photos [icon: image, color: green] {
+  id serial pk
+  progress_log_id int fk 
+  photo_url varchar(256) not null
+  uploaded_at timestamp
+}
+
+trainer_notes [icon: pencil, color: yellow] {
+  id serial pk
+  trainer_id int fk
+  client_id int fk
+  notes text not null
+  created_at timestamp
+}
+
+subscriptions [icon: supabase, color: blue] {
+  id serial pk
+  enrollment_id int fk
+  billing enum['one_time','monthly','quarterly','yearly']
+  amount decimal(10,2) not null
+  status enum['pending','active','past_due','cancelled','expired']
+  created_at timestamp
+}
+
+enrollments [icon: subnet, color: red] {
+  id serial pk
+  client_id int fk
+  coaching_plan_id int fk
+  trainer_id int fk
+  start_date date
+  end_date date
+  status enum['pending','active','paused','completed','cancelled','expired']
+  enrolled_at timestamp
+}
+
+coaching_plans [icon: list, color: purple] {
+  id serial pk
+  trainer_id int fk
+  title text not null
+  description text
+  plan_type enum['one_time','subscription','consultation_only']
+  duration int
+  price decimal(10,2) not null
+  is_active boolean default[true]
+  created_at timestamp
+}
+
+sessions [icon: video, color: red] {
+  id serial pk
+  trainer_id int fk
+  client_id int fk
+  enrollment_id int fk
+  session_type enum[consultation,coaching_call,live_group]
+  scheduled_at timestamp
+  meeting_link text
+  status enum[scheduled,completed,cancelled,no_show]
+  duration int
+}
+
+// Relationships
+
+users.id < client.user_id
+users.id < trainer.user_id
+
+trainer.id < coaching_plans.trainer_id
+
+client.id < enrollments.client_id
+trainer.id < enrollments.trainer_id
+coaching_plans.id < enrollments.coaching_plan_id
+
+client.id < payments.client_id
+enrollments.id < payments.enrollment_id
+
+enrollments.id - subscriptions.enrollment_id
+
+trainer.id < sessions.trainer_id
+client.id < sessions.client_id
+enrollments.id < sessions.enrollment_id
+
+trainer.id < trainer_notes.trainer_id
+client.id < trainer_notes.client_id
+
+client.id < progress_logs.client_id
+
+progress_logs.id < progress_photos.progress_log_id
