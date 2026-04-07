@@ -6,7 +6,7 @@ The task was to design an ER diagram for an online fitness coaching platform —
 
 ---
 
-## What the platform is about
+## What the platform is about?
 
 A fitness influencer starts small — a few clients, some DMs, Google Meet calls. But as the brand grows, things get messy. You need a real system that can handle:
 
@@ -55,41 +55,41 @@ Because not everyone is the same type of user. A trainer doesn't need a `dob` or
 **Why does `enrollments` exist as its own table?**  
 Because a client can buy multiple plans over time, and one plan can be bought by many clients. The enrollment is the relationship between them — it also stores start/end dates and status, which neither the client nor the plan should own.
 
-**Sessions ≠ Check-ins**  
-A session is a scheduled call — it has a meeting link, a duration, a status. A check-in (progress log) is data a client submits — weight, measurements, photos. They're two completely different things and should never be mixed.
+**Sessions**  
+A session is a scheduled call — it has a meeting link, a duration, a status.
 
 **Why store `trainer_notes` separately?**  
-Because trainer notes are private observations — not something the client necessarily sees. Keeping them in their own table makes it easy to control access and query them independently.
+Because trainer notes are private observations — not something the client necessarily sees. Keeping them in their own table makes it easy to control access.
 
 **Payments vs Subscriptions**  
-A subscription tracks the billing cycle and its current status (active, expired, cancelled). A payment is an individual transaction. One subscription can have many payments over time, so they're separate.
+A subscription tracks the billing and its current status (active, expired, cancelled). A payment is an individual transaction. One subscription can have many payments over time, so they're separate.
 
 ---
 
 ## Relationships overview
 
 ```
-users ──< trainer
-users ──< client
+users --< trainer
+users --< client
 
-trainer ──< coaching_plans
-trainer ──< enrollments
-trainer ──< sessions
-trainer ──< trainer_notes
+trainer --< coaching_plans
+trainer --< enrollments
+trainer --< sessions
+trainer --< trainer_notes
 
-client ──< enrollments
-client ──< sessions
-client ──< trainer_notes
-client ──< payments
-client ──< progress_logs
+client --< enrollments
+client --< sessions
+client --< trainer_notes
+client --< payments
+client --< progress_logs
 
-coaching_plans ──< enrollments
+coaching_plans --< enrollments
 
-enrollments ──| subscriptions
-enrollments ──< payments
-enrollments ──< sessions
+enrollments --| subscriptions
+enrollments --< payments
+enrollments --< sessions
 
-progress_logs ──< progress_photos
+progress_logs --< progress_photos
 ```
 
 ---
